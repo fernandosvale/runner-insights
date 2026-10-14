@@ -1,0 +1,19 @@
+# Ambientes virtuais
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Segredos
+.env
+
+# Dados brutos contêm nomes completos (LGPD): não versionar
+data/raw/
