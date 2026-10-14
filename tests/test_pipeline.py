@@ -9,7 +9,25 @@ from src.pipeline import (
     inferir_sexo_pelo_nome,
     tratar_dados_atletas,
 )
-from src.utils import formatar_minutos_para_pace
+from src.utils import calcular_metricas_estatisticas, formatar_minutos_para_pace
+
+
+class TestMetricasEstatisticas:
+    def test_calculo_serie_valida(self):
+        s = pd.Series([4.0, 5.0, 6.0])
+        metricas = calcular_metricas_estatisticas(s)
+
+        assert metricas["media"] == pytest.approx(5.0)
+        assert metricas["mediana"] == pytest.approx(5.0)
+        assert metricas["min"] == pytest.approx(4.0)
+        assert metricas["max"] == pytest.approx(6.0)
+        assert "p25" in metricas
+        assert "p75" in metricas
+        assert "p90" in metricas
+
+    def test_serie_vazia(self):
+        assert calcular_metricas_estatisticas(pd.Series([], dtype=float)) == {}
+        assert calcular_metricas_estatisticas(pd.Series([None, None], dtype=float)) == {}
 
 
 class TestConverterTempo:
@@ -57,6 +75,8 @@ class TestInferirSexo:
         ("Lucas Pereira", "M"),
         ("Joshua Alves", "M"),
         ("Alexandre Costa", "M"),
+        ("Chloe Martin", "F"),
+        ("George Washington", "M"),
     ])
     def test_classificacao(self, nome, esperado):
         assert inferir_sexo_pelo_nome(nome) == esperado

@@ -70,10 +70,23 @@ def gerar_id_atleta(nome_completo, url_corrida):
     return hashlib.sha256(base).hexdigest()[:10]
 
 
+# Lazy loading do detector de gênero para inicialização sob demanda
+_gender_detector = None
+
+
+def _obter_gender_detector():
+    global _gender_detector
+    if _gender_detector is None:
+        import gender_guesser.detector as gender
+        _gender_detector = gender.Detector(case_sensitive=False)
+    return _gender_detector
+
+
 def inferir_sexo_pelo_nome(nome_completo):
     """
     Infere o sexo (M/F) com base no primeiro nome do atleta.
-    Usa terminações comuns do português e uma lista de nomes frequentes.
+    Combina regras ortográficas do português brasileiro, lista de exceções comuns
+    e fallback inteligente com a biblioteca gender-guesser.
     Retorna 'N/I' quando o nome é ambíguo (estimativa, não dado oficial).
     """
     if not isinstance(nome_completo, str) or not nome_completo.strip():
@@ -81,6 +94,13 @@ def inferir_sexo_pelo_nome(nome_completo):
 
     # Isola o primeiro nome e coloca em maiúsculas
     primeiro_nome = nome_completo.strip().split()[0].upper()
+
+    # Nomes unissex ou ambíguos comuns no Brasil
+    nomes_ambiguos = {
+        "CLEUDINEI", "KENNEDY", "DARLAN", "ALEX", "CHRIS", "DANI", "ELIS", "VALMIR", "VALDIR"
+    }
+    if primeiro_nome in nomes_ambiguos:
+        return "N/I"
 
     # Nomes masculinos comuns que terminam com 'A' ou outras vogais
     excecoes_masculinas = {
@@ -107,9 +127,20 @@ def inferir_sexo_pelo_nome(nome_completo):
     if primeiro_nome.endswith('A'):
         return "F"
 
-    # Terminações predominantemente masculinas; as demais (E, I, Y...) são ambíguas
+    # Terminações predominantemente masculinas
     if primeiro_nome[-1] in "OSRLNMDKTCXZHUPBGFVJW":
         return "M"
+
+    # Fallback inteligente com gender-guesser (nomes internacionais ou terminações E, I, Y)
+    try:
+        detector = _obter_gender_detector()
+        genero_estimado = detector.get_gender(primeiro_nome.capitalize())
+        if genero_estimado in ("male", "mostly_male"):
+            return "M"
+        if genero_estimado in ("female", "mostly_female"):
+            return "F"
+    except Exception:
+        pass
 
     return "N/I"
 
