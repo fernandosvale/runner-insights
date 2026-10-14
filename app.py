@@ -159,4 +159,7 @@ else:
     else:
         # TRATAMENTO DE RETORNO VAZIO AMIGÁVEL
         st.warning("⚠️ **Nenhum registro encontrado para os filtros selecionados.**")
-        st.info("Tente alterar os filtros na barra lateral (por exemplo, selecionar 'Todas' as distâncias ou categorias) para visualizar os dados.")
+        st.info(
+            "Tente alterar os filtros na barra lateral (por exemplo, selecionar 'Todas' "
+            "as distâncias ou categorias) para visualizar os dados."
+        )

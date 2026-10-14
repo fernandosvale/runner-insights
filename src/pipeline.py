@@ -1,26 +1,24 @@
 import hashlib
 import logging
-import os
 import re
 import sys
 
 import pandas as pd
 
+from src import config
 from src.utils import formatar_minutos_para_pace
+from src.validation import validar_dados_tratados
 
 logger = logging.getLogger(__name__)
 
 
-def carregar_dados_brutos():
-    """Busca o arquivo CSV bruto na pasta data/raw de forma segura."""
-    pasta_raiz = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    caminho_csv = os.path.join(pasta_raiz, "data", "raw", "corridas_fortaleza_bruto.csv")
+def carregar_dados_brutos() -> pd.DataFrame:
+    """Carrega o CSV bruto gerado pelo scraper."""
+    if not config.CSV_BRUTO.exists():
+        raise FileNotFoundError(f"O arquivo bruto não foi encontrado em: {config.CSV_BRUTO}. Rode o scraper primeiro!")
 
-    if not os.path.exists(caminho_csv):
-        raise FileNotFoundError(f"O arquivo bruto não foi encontrado em: {caminho_csv}. Rode o scraper primeiro!")
-
-    logger.info("Carregando dados brutos de: %s", caminho_csv)
-    return pd.read_csv(caminho_csv)
+    logger.info("Carregando dados brutos de: %s", config.CSV_BRUTO)
+    return pd.read_csv(config.CSV_BRUTO)
 
 
 def converter_tempo_para_minutos(tempo_str):
@@ -68,7 +66,7 @@ def anonimizar_nome(nome_completo):
 
 def gerar_id_atleta(nome_completo, url_corrida):
     """Gera um identificador estável (hash) sem expor o nome."""
-    base = f"{nome_completo}|{url_corrida}".encode("utf-8")
+    base = f"{nome_completo}|{url_corrida}".encode()
     return hashlib.sha256(base).hexdigest()[:10]
 
 
@@ -150,16 +148,18 @@ def tratar_dados_atletas(df_bruto):
     df['pace_min_km'] = df['pace_decimal'].apply(formatar_minutos_para_pace)
 
     # 6. Anonimização (LGPD): identificador em hash + nome reduzido
-    df['id_atleta'] = [gerar_id_atleta(n, u) for n, u in zip(df['nome_atleta'], df['url_corrida'])]
+    df['id_atleta'] = [
+        gerar_id_atleta(n, u) for n, u in zip(df['nome_atleta'], df['url_corrida'], strict=True)
+    ]
     df['nome_atleta'] = df['nome_atleta'].apply(anonimizar_nome)
 
     # Remove colunas intermediárias que não farão sentido no dashboard final
     df = df.drop(columns=['detalhes_atleta'])
 
-    return df
+    return validar_dados_tratados(df)
 
 
-def executar_pipeline_tratamento():
+def executar_pipeline_tratamento() -> None:
     # Passo 1: Ler os dados salvos pelo Scraper
     df_bruto = carregar_dados_brutos()
 
@@ -169,16 +169,13 @@ def executar_pipeline_tratamento():
         ['nome_atleta', 'sexo', 'tempo_bruto', 'distancia_km', 'pace_min_km']].head())
 
     # Passo 3: Salvar na pasta de dados processados
-    pasta_raiz = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    caminho_salvamento = os.path.join(pasta_raiz, "data", "processed", "corridas_fortaleza_limpo.csv")
-    os.makedirs(os.path.dirname(caminho_salvamento), exist_ok=True)
-
-    df_tratado.to_csv(caminho_salvamento, index=False, encoding="utf-8-sig")
-    logger.info("Dados tratados salvos em: %s", caminho_salvamento)
+    config.PASTA_PROCESSED.mkdir(parents=True, exist_ok=True)
+    df_tratado.to_csv(config.CSV_LIMPO, index=False, encoding="utf-8-sig")
+    logger.info("Dados tratados salvos em: %s", config.CSV_LIMPO)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+    config.configurar_logging()
     try:
         executar_pipeline_tratamento()
     except Exception:
