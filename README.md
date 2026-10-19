@@ -53,9 +53,9 @@ flowchart TD
 
     subgraph Visualizacao ["3. Camada de Apresentação (BI)"]
         I --> J[app.py<br/>Streamlit Dashboard]
-        J --> K[Cards KPI: Mediana, Média, P25, P75, P90]
-        J --> L[Gráficos Plotly: Boxplots, Histograma, Proporção]
-        J --> M[Filtros Interativos por Prova, Distância e Sexo]
+        J --> K[Cards KPI: Resultados, Melhor Tempo, P50, Provas]
+        J --> L[Gráficos Plotly: Eixos em MM:SS min/km, Boxplots, Histograma]
+        J --> M[Filtros Interativos por Prova, Distância e Categoria]
     end
 ```
 
