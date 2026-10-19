@@ -5,13 +5,20 @@ import plotly.express as px  # Biblioteca para gráficos interativos
 import streamlit as st
 
 from src.utils import calcular_metricas_estatisticas, formatar_minutos_para_pace
+from styles import aplicar_tema
+from styles.design_tokens import COLORS
+from styles.plotly_theme import COR_MEDIA, COR_MEDIANA, CORES_CATEGORIA, registrar_tema_plotly
 
 # Configuração inicial da página do Streamlit
 st.set_page_config(
     page_title="RunnerInsights - Performance de Corrida",
-    page_icon="🏃‍♂️",
+    page_icon=":material/directions_run:",
     layout="wide"
 )
+
+# Identidade visual (DESIGN_SYSTEM.md): tema global + template Plotly
+aplicar_tema()
+registrar_tema_plotly()
 
 
 @st.cache_data
@@ -30,10 +37,10 @@ def carregar_dados_tratados():
 df = carregar_dados_tratados()
 
 if df is None:
-    st.error("⚠️ Arquivo de dados tratados não encontrado! Rode `python -m src.pipeline` primeiro.")
+    st.error("Arquivo de dados tratados não encontrado! Rode `python -m src.pipeline` primeiro.", icon=":material/error:")
 else:
     # --- BARRA LATERAL (FILTROS) ---
-    st.sidebar.header("🎯 Filtros de Pesquisa")
+    st.sidebar.header("Filtros de Pesquisa")
 
     # Filtro 1: Corrida/Prova
     lista_provas = sorted(df['nome_prova'].dropna().unique())
@@ -52,7 +59,7 @@ else:
     }
     sexo_rotulo_selecionado = st.sidebar.selectbox("Selecione a Categoria:", list(opcoes_sexo.keys()))
     sexo_codigo_selecionado = opcoes_sexo[sexo_rotulo_selecionado]
-    st.sidebar.caption("ℹ️ O sexo é uma **estimativa** feita pelo primeiro nome, não um dado oficial.")
+    st.sidebar.caption("O sexo é uma **estimativa** feita pelo primeiro nome, não um dado oficial.")
 
     # Aplicando os filtros encadeados no DataFrame
     df_filtrado = df.copy()
@@ -67,7 +74,7 @@ else:
         df_filtrado = df_filtrado[df_filtrado['sexo'] == sexo_codigo_selecionado]
 
     # --- CORPO PRINCIPAL DO DASHBOARD ---
-    st.title("🏃‍♂️ RunnerInsights")
+    st.title("RunnerInsights")
     st.subheader("Análise de Performance de Corridas de Rua em Fortaleza")
     st.markdown("---")
 
@@ -122,7 +129,7 @@ else:
 
         # Seção Expansível com Percentis Estatísticos
         if stats_pace:
-            with st.expander("📈 Estatísticas Detalhadas de Performance (Percentis P10 a P90)", expanded=False):
+            with st.expander("Estatísticas Detalhadas de Performance (Percentis P10 a P90)", expanded=False, icon=":material/query_stats:"):
                 col_p1, col_p2, col_p3, col_p4, col_p5 = st.columns(5)
                 col_p1.metric(
                     "Top 10% (P10)",
@@ -153,7 +160,7 @@ else:
         st.markdown("---")
 
         # 3. SEÇÃO DE GRÁFICOS VISUAIS INTERATIVOS
-        st.write("### 📊 Análises Visuais de Performance")
+        st.write("### Análises Visuais de Performance")
 
         df_graficos = df_filtrado.copy()
         if 'sexo' in df_graficos.columns:
@@ -175,11 +182,7 @@ else:
                     title="Participação por Categoria (estimada)",
                     hole=0.4,
                     color='Categoria',
-                    color_discrete_map={
-                        'Masculino': '#1f77b4',
-                        'Feminino': '#e377c2',
-                        'Não identificado': '#9e9e9e',
-                    },
+                    color_discrete_map=CORES_CATEGORIA,
                 )
                 st.plotly_chart(fig_sexo, use_container_width=True)
 
@@ -192,18 +195,18 @@ else:
                     nbins=15,
                     title="Distribuição de Frequência do Pace (min/km)",
                     labels={'pace_decimal': 'Pace Decimal (minutos/km)'},
-                    color_discrete_sequence=['#2ca02c'],
+                    color_discrete_sequence=[COLORS["accent-primary"]],
                 )
                 fig_pace.add_vline(
                     x=stats_pace["mediana"],
                     line_dash="dash",
-                    line_color="orange",
+                    line_color=COR_MEDIANA,
                     annotation_text=f"Mediana: {formatar_minutos_para_pace(stats_pace['mediana'])}",
                 )
                 fig_pace.add_vline(
                     x=stats_pace["media"],
                     line_dash="dot",
-                    line_color="blue",
+                    line_color=COR_MEDIA,
                     annotation_text=f"Média: {formatar_minutos_para_pace(stats_pace['media'])}",
                 )
                 fig_pace.update_layout(yaxis_title="Quantidade de Atletas")
@@ -222,11 +225,7 @@ else:
                     points="outliers",
                     title="Dispersão do Pace por Categoria (min/km)",
                     labels={'pace_decimal': 'Pace (min/km)', 'Categoria': 'Categoria Estimada'},
-                    color_discrete_map={
-                        'Masculino': '#1f77b4',
-                        'Feminino': '#e377c2',
-                        'Não identificado': '#9e9e9e',
-                    },
+                    color_discrete_map=CORES_CATEGORIA,
                 )
                 fig_box_sexo.update_layout(showlegend=False)
                 st.plotly_chart(fig_box_sexo, use_container_width=True)
@@ -263,14 +262,14 @@ else:
                         barmode='group',
                         title="Pace Médio vs Mediano por Categoria",
                         labels={'Pace': 'Pace (min/km)'},
-                        color_discrete_map={'Mediana': '#ff7f0e', 'Média': '#1f77b4'},
+                        color_discrete_map={'Mediana': COR_MEDIANA, 'Média': COR_MEDIA},
                     )
                     st.plotly_chart(fig_bar_cat, use_container_width=True)
 
         st.markdown("---")
 
         # 4. Tabela de Dados Filtrada
-        st.write("### 📋 Resultados Detalhados")
+        st.write("### Resultados Detalhados")
 
         colunas_exibicao = ['nome_prova', 'nome_atleta', 'sexo', 'tempo_bruto', 'numero_peito', 'distancia_prova', 'pace_min_km']
         colunas_presentes = [col for col in colunas_exibicao if col in df_filtrado.columns]
@@ -279,7 +278,7 @@ else:
 
     else:
         # TRATAMENTO DE RETORNO VAZIO AMIGÁVEL
-        st.warning("⚠️ **Nenhum registro encontrado para os filtros selecionados.**")
+        st.warning("**Nenhum registro encontrado para os filtros selecionados.**", icon=":material/search_off:")
         st.info(
             "Tente alterar os filtros na barra lateral (por exemplo, selecionar 'Todas' "
             "as distâncias ou categorias) para visualizar os dados."
