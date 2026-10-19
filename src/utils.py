@@ -36,3 +36,19 @@ def calcular_metricas_estatisticas(series: pd.Series) -> dict[str, float]:
         "p90": float(validos.quantile(0.90)),
         "max": float(validos.max()),
     }
+
+
+def gerar_ticks_pace(min_pace: float, max_pace: float, step_segundos: int = 30):
+    """Gera valores decimais (tickvals) e rótulos 'MM:SS' (ticktext) para eixos Plotly."""
+    import numpy as np
+
+    if pd.isna(min_pace) or pd.isna(max_pace) or min_pace >= max_pace:
+        return [], []
+
+    step_min = step_segundos / 60.0
+    inicio = np.floor(min_pace / step_min) * step_min
+    fim = np.ceil(max_pace / step_min) * step_min + (step_min / 2)
+
+    tickvals = list(np.arange(inicio, fim, step_min))
+    ticktext = [formatar_minutos_para_pace(v) for v in tickvals]
+    return tickvals, ticktext
