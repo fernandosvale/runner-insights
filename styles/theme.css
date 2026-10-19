@@ -1,0 +1,130 @@
+/* RunnerInsights — tema global. Variáveis vêm de styles/design_tokens.py (:root). */
+
+/* Fontes: carregadas via Google Fonts; se indisponíveis, os fallbacks dos tokens são usados. */
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+/* ---------- Base ---------- */
+html, body, [data-testid="stApp"] {
+  font-family: var(--font-body);
+}
+
+[data-testid="stApp"] {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+[data-testid="stSidebar"] {
+  background-color: var(--color-bg-secondary);
+  border-right: 1px solid var(--color-border);
+}
+
+.block-container {
+  padding-top: var(--space-10);
+  max-width: 1400px;
+}
+
+/* ---------- Tipografia ---------- */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+h1 { font-size: clamp(2rem, 3vw, 2.25rem); }
+h2 { font-size: clamp(1.5rem, 2.2vw, 1.75rem); }
+h3 { font-size: 1.375rem; }
+
+hr {
+  border-color: var(--color-border);
+  margin: var(--space-6) 0;
+}
+
+[data-testid="stCaptionContainer"] {
+  color: var(--color-text-secondary);
+}
+
+/* ---------- Cards de indicadores (st.metric) ---------- */
+[data-testid="stMetric"] {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  transition: background-color var(--transition), border-color var(--transition);
+}
+
+[data-testid="stMetric"]:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+[data-testid="stMetricLabel"] {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+[data-testid="stMetricValue"] {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 2.4vw, 2.5rem);
+  color: var(--color-text-primary);
+}
+
+/* ---------- Botões ---------- */
+.stButton > button, .stDownloadButton > button {
+  font-family: var(--font-body);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  transition: background-color var(--transition), border-color var(--transition);
+}
+
+.stButton > button:hover, .stDownloadButton > button:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+.stButton > button[kind="primary"] {
+  background-color: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
+  color: var(--color-bg-primary);
+}
+
+.stButton > button[kind="primary"]:hover {
+  background-color: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+/* ---------- Filtros / labels ---------- */
+[data-testid="stWidgetLabel"] {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Expander, tabela e alertas ---------- */
+[data-testid="stExpander"] {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+[data-testid="stDataFrame"] {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+}
+
+[data-testid="stAlert"] {
+  border-radius: var(--radius-md);
+}
+
+/* ---------- Movimento reduzido ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

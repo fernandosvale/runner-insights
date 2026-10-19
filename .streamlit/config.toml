@@ -1,0 +1,9 @@
+# Tema nativo do Streamlit — valores espelham styles/design_tokens.py
+[theme]
+base = "dark"
+primaryColor = "#B6F500"
+backgroundColor = "#050708"
+secondaryBackgroundColor = "#101416"
+textColor = "#FFFFFF"
+borderColor = "#30383D"
+baseRadius = "10px"
