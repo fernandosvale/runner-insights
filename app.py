@@ -4,21 +4,19 @@ import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 
-from src.classic_view import renderizar_dashboard_classico
 from src.dashboard_view import gerar_html_dashboard
 from styles import aplicar_tema
-from styles.plotly_theme import registrar_tema_plotly
 
 # Configuração da página
 st.set_page_config(
-    page_title="RunnerInsights - Inteligência Esportiva",
+    page_title="RunnerInsights · Dashboard de Corridas",
     page_icon=":material/directions_run:",
     layout="wide",
+    initial_sidebar_state="collapsed",
 )
 
 # Identidade visual oficial
 aplicar_tema()
-registrar_tema_plotly()
 
 
 @st.cache_data
@@ -44,38 +42,25 @@ if df is None:
         icon=":material/error:",
     )
 else:
-    # ----------------------------------------------------
-    # SELETOR DE MODO VISUAL
-    # ----------------------------------------------------
-    st.sidebar.header("Experiência Visual")
-    modo_visual = st.sidebar.radio(
-        "Estilo do Dashboard:",
-        ["Visual Chamativo (Neon)", "Visual Clássico (Streamlit)"],
-        index=0,
-        help="Alterne entre o novo visual chamativo em HTML/CSS neon ou o dashboard clássico em componentes Streamlit/Plotly.",
+    st.markdown(
+        """
+        <style>
+        /* Oculta barra lateral vazia e expande o dashboard Neon na tela inteira */
+        [data-testid="stSidebar"] {
+            display: none;
+        }
+        .block-container {
+            padding: 0.5rem 0.5rem 1rem 0.5rem !important;
+            max-width: 100% !important;
+        }
+        iframe {
+            border: none !important;
+            border-radius: 12px;
+            width: 100% !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
     )
-
-    if modo_visual == "Visual Chamativo (Neon)":
-        st.markdown(
-            """
-            <style>
-            .block-container {
-                padding-top: 0.5rem !important;
-                padding-bottom: 0.5rem !important;
-                padding-left: 0.5rem !important;
-                padding-right: 0.5rem !important;
-                max-width: 100% !important;
-            }
-            iframe {
-                border: none !important;
-                border-radius: 12px;
-                width: 100% !important;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
-        html_dashboard = gerar_html_dashboard(df)
-        components.html(html_dashboard, height=1950, scrolling=True)
-    else:
-        renderizar_dashboard_classico(df)
+    html_dashboard = gerar_html_dashboard(df)
+    components.html(html_dashboard, height=1950, scrolling=True)
