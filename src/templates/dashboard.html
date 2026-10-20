@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RunnerInsights · Dashboard de corridas</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+:root{
+  --bg:#0b0608; --card:#150a0d; --line:#2a1418; --line2:#4a2a30;
+  --neon:#B6F500; --neon-h:#C9FF24; --red:#ff3b47;
+  --text:#fff; --muted:#a89aa0;
+  --f-title:'Barlow Condensed',sans-serif; --f-ui:'Inter',sans-serif; --f-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;color:var(--text);font-family:var(--f-ui);font-size:14px;line-height:1.4;
+  background:radial-gradient(circle at 15% 0%,#3d0b12 0,transparent 45%),radial-gradient(circle at 100% 100%,#1a0508 0,transparent 50%),var(--bg)}
+.wrap{max-width:1280px;margin:0 auto;padding:20px}
+.hidden{display:none!important}
+.mono{font-family:var(--f-mono)}
+
+/* upload */
+.drop{margin:8vh auto 0;max-width:620px;border:2px dashed var(--line2);border-radius:16px;background:rgba(21,10,13,.8);padding:56px 24px;text-align:center;cursor:pointer;transition:.15s}
+.drop:hover,.drop.drag{border-color:var(--neon);background:var(--card)}
+.drop i{font-size:48px;color:var(--neon)}
+.drop h1{font-family:var(--f-title);font-size:34px;letter-spacing:.08em;text-transform:uppercase;margin:8px 0 4px}
+.drop h1 b{color:var(--neon);font-weight:700}
+.drop p{color:var(--muted);font-size:14px}
+.drop .btn{display:inline-block;margin-top:20px;background:var(--neon);color:#050708;font-weight:600;padding:10px 22px;border-radius:8px;border:none;cursor:pointer}
+.drop:hover .btn{background:var(--neon-h)}
+#err{margin:16px auto 0;max-width:620px;border:1px solid #6b1f1f;background:#220b0b;color:#ff9b9b;border-radius:8px;padding:10px 14px;font-size:13px}
+
+/* topo */
+.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:rgba(21,10,13,.85);border:1px solid var(--line);border-radius:12px;padding:12px 18px}
+.ttl{font-family:var(--f-title);font-size:30px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+.ttl b{color:var(--neon);font-weight:700}
+.fl{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.fl label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+select,button{background:var(--bg);color:var(--text);border:1px solid var(--line2);border-radius:8px;height:36px;font:inherit;font-size:13px;padding:0 10px;min-width:150px;max-width:260px}
+button{min-width:0;cursor:pointer}
+select:hover,button:hover{border-color:var(--neon);background:var(--card)}
+select:focus-visible,button:focus-visible{outline:2px solid var(--neon);outline-offset:1px}
+.sum{font-size:12px;color:var(--muted);margin:10px 2px}
+.sum b{color:var(--text);font-weight:500}
+.warn{background:#2b1d05;border:1px solid #6b5a00;color:#f2c14e;border-radius:8px;padding:8px 12px;font-size:12px;margin:0 0 12px}
+.warn button{height:28px;margin-left:8px;font-size:12px}
+
+/* kpis */
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.kc{background:rgba(21,10,13,.85);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;gap:14px;align-items:center}
+.kc i{font-size:36px;color:var(--neon)}
+.kc b{display:block;font-family:var(--f-mono);font-size:28px;font-weight:500;line-height:1.1}
+.kc span{font-size:12px;color:var(--muted)}
+
+/* grade */
+.g{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:14px;margin-top:14px}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.cd{background:rgba(21,10,13,.85);border:1px solid var(--line);border-radius:12px;padding:16px 18px;min-width:0}
+.ct{font-size:15px;font-weight:600;text-align:center}
+.cs{font-size:12px;color:var(--muted);text-align:center;margin-bottom:8px}
+.lg{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:12px;color:#c9bdc2;margin:4px 0 6px}
+.lg i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.nt{font-size:12px;color:var(--muted);margin-top:8px}
+.wn{background:#2b1d05;color:#f2c14e;border-radius:6px;padding:6px 10px;font-size:12px;margin-top:8px}
+svg{width:100%;height:auto;display:block;overflow:visible}
+svg text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+svg .l{font-family:var(--f-ui);fill:#e8e0e3;font-size:12px}
+
+/* painel verde */
+.pn{background:linear-gradient(160deg,#16521d 0%,#0a2d10 70%);border:1px solid #1f6b28;border-radius:12px;padding:18px;min-width:0}
+.big{font-family:var(--f-mono);font-size:40px;font-weight:500;line-height:1.1}
+.pn .sub{font-size:13px;color:#bfe8c4}
+.pt{font-size:14px;font-weight:600;margin:20px 0 8px}
+.br{display:grid;grid-template-columns:36px 1fr 56px;gap:8px;align-items:center;margin:7px 0;font-size:12px}
+.br i{display:block;height:16px;background:#e9e9e9;border-radius:3px}
+.br .m,.tp .m{font-family:var(--f-mono);text-align:right}
+.tp{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin:7px 0;border-bottom:1px solid #1f6b28;padding-bottom:6px}
+.tp small{display:block;color:#9fcfa5;font-size:11px}
+.pn .nt{color:#9fcfa5}
+.foot{font-size:12px;color:var(--muted);margin:16px 2px 0;max-width:110ch}
+
+/* tabela */
+.tb-wrap{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{position:sticky;top:0;background:var(--card);color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.05em;font-size:11px}
+th.s{cursor:pointer}th.s:hover{color:var(--neon-h)}
+td.m,th.m{text-align:right;font-family:var(--f-mono)}
+#more{margin-top:10px}
+
+#tip{position:absolute;pointer-events:none;background:#000;border:1px solid var(--neon);border-radius:8px;padding:8px 10px;font-size:12px;z-index:50;display:none;font-family:var(--f-mono);max-width:300px;box-shadow:0 8px 24px rgba(0,0,0,0.6)}
+@media(max-width:980px){.g{grid-template-columns:1fr}.r2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="upload">
+  <label class="drop" id="drop" for="file">
+    <i class="ti ti-upload" aria-hidden="true"></i>
+    <h1>Runner<b>Insights</b></h1>
+    <p>Arraste o arquivo <span class="mono">corridas_fortaleza_limpo.csv</span> aqui ou clique para selecionar.</p>
+    <div style="display:flex;justify-content:center;gap:10px;align-items:center;flex-wrap:wrap">
+      <span class="btn">Selecionar CSV</span>
+      <button id="restore" class="btn" style="background:transparent;border:1px solid var(--line2);color:var(--text)" type="button">Restaurar base original</button>
+    </div>
+    <input type="file" id="file" accept=".csv,text/csv" hidden>
+  </label>
+  <div id="err" class="hidden"></div>
+</div>
+
+<div id="dash" class="hidden">
+  <div class="top">
+    <div class="ttl">Runner<b>Insights</b> · Corridas</div>
+    <div class="fl">
+      <label>Corrida<select id="fp"></select></label>
+      <label>Distância<select id="fd"></select></label>
+      <label>Categoria estimada<select id="fs"></select></label>
+      <button id="clr" type="button">Limpar</button>
+      <button id="swap" type="button">Trocar CSV</button>
+    </div>
+  </div>
+  <div class="sum" id="sum"></div>
+  <div id="wd" class="warn hidden">Você selecionou provas de distâncias diferentes. O pace pode ser influenciado por essa diferença, portanto compare os resultados com cautela.
+    <button id="one" type="button">Restringir a uma distância</button></div>
+  <div id="emp" class="cd hidden" style="text-align:center;padding:48px">Nenhum resultado para esta combinação. Altere ou limpe os filtros.</div>
+
+  <div id="main">
+    <div class="kp" id="kp"></div>
+    <div class="g">
+      <div class="col">
+        <div class="cd">
+          <div class="ct">Como os ritmos se distribuem?</div>
+          <div class="cs">Faixas de pace dos resultados filtrados (menor pace = corrida mais rápida)</div>
+          <div class="lg"><span><i style="background:#fff"></i>Mediana (linha contínua)</span><span><i style="background:var(--red)"></i>Média (tracejada)</span></div>
+          <div id="hi"></div>
+          <div class="nt" id="hn"></div>
+          <div class="nt">A mediana é o ritmo central; a média considera todos os valores e sofre mais com extremos. Representa só os resultados coletados, não todos os corredores de Fortaleza.</div>
+        </div>
+        <div class="r2">
+          <div class="cd"><div class="ct">Resultados por categoria</div><div class="cs">Registros, não pessoas únicas</div><div id="dn"></div></div>
+          <div class="cd"><div class="ct">Pace mediano por categoria</div><div class="cs">Sexo estimado pelo primeiro nome, não é dado oficial</div><div id="cb"></div></div>
+        </div>
+        <div class="cd">
+          <div class="ct">Mediana e P90 do pace por prova</div>
+          <div class="cs">Provas ordenadas pela mediana. P90: pace abaixo do qual estão 90% dos resultados</div>
+          <div class="lg"><span><i style="background:var(--neon)"></i>Mediana</span><span><i style="background:var(--red)"></i>P90 (cauda mais lenta)</span></div>
+          <div id="pv"></div>
+          <div class="nt">Percurso, clima e perfil dos participantes não estão na base: diferenças entre provas não indicam dificuldade nem nível dos atletas.</div>
+        </div>
+        <div class="cd">
+          <div class="ct">Explore os resultados individuais</div>
+          <div class="cs">Registros incluídos na análise. Clique em Tempo ou Pace para ordenar</div>
+          <div class="tb-wrap"><table id="tb"></table></div>
+          <button id="more" type="button">Mostrar mais</button>
+        </div>
+      </div>
+      <div class="pn">
+        <div class="big" id="pm">--</div>
+        <div class="sub">Pace mediano (min/km)</div>
+        <div class="pt">Percentis do pace</div><div id="pc"></div>
+        <div class="pt">Melhores tempos</div><div id="tp"></div>
+        <div class="nt">Valores do grupo filtrado. P10 fica na região dos resultados mais rápidos; P90, na dos mais lentos.</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot" id="ft"></div>
+</div>
+</div>
+<div id="tip"></div>
+
+<script>
+const $=i=>document.getElementById(i);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const SX={M:'Masculino (est.)',F:'Feminino (est.)',N:'Não identificado'};
+const SC={M:'#B6F500',F:'#e8e8e8',N:'#6b5a60'};
+const normSex=v=>{v=(v||'').trim().toUpperCase();return v==='M'||v==='F'?v:'N'};
+const sh=n=>String(n).replace(/\s*-\s*Fortaleza/gi,'').replace(/Fortaleza/gi,'').replace(/\s+/g,' ').trim();
+const cut=(s,n)=>s.length>n?s.slice(0,n-1)+'…':s;
+const srt=a=>[...a].sort((x,y)=>x-y);
+const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+const q=(a,f)=>{const i=(a.length-1)*f,l=Math.floor(i),h=Math.ceil(i);return a[l]+(a[h]-a[l])*(i-l)};
+/* pace decimal -> MM:SS (arredonda o total de segundos antes de separar) */
+const fp=x=>{if(!isFinite(x))return '—';const t=Math.round(x*60);return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
+
+function parseCSV(text){
+  text=text.replace(/^\uFEFF/,'');
+  const rows=[];let row=[],f='',inq=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inq){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else inq=false}else f+=c}
+    else if(c==='"')inq=true;
+    else if(c===','){row.push(f);f=''}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(f);f='';if(row.length>1||row[0]!=='')rows.push(row);row=[]}
+    else f+=c;
+  }
+  if(f!==''||row.length){row.push(f);rows.push(row)}
+  const head=rows.shift().map(h=>h.trim());
+  return rows.map(r=>Object.fromEntries(head.map((h,i)=>[h,r[i]])));
+}
+
+let ALL=[],V=[],F=[],sortKey='tempo',sortDir=1,shown=50;
+
+function prepare(raw){
+  if(!raw.length||!('nome_prova' in raw[0])) throw new Error('Não encontrei a coluna nome_prova. Confira se é o arquivo corridas_fortaleza_limpo.csv.');
+  ALL=raw;
+  V=raw.map(r=>{
+    const tempo=parseFloat(r.tempo_total_minutos),dist=parseFloat(r.distancia_km);
+    let pace=parseFloat(r.pace_decimal);
+    if(!isFinite(pace)&&isFinite(tempo)&&dist>0)pace=tempo/dist;
+    return{prova:r.nome_prova,atleta:r.nome_atleta,s:normSex(r.sexo),t:r.tempo_bruto,b:r.numero_peito,dl:r.distancia_prova||'',dist,min:tempo,pace};
+  }).filter(r=>r.prova&&isFinite(r.min)&&r.min>0&&isFinite(r.dist)&&r.dist>0&&isFinite(r.pace));
+  if(!V.length) throw new Error('Nenhum registro válido encontrado no arquivo.');
+  ['fp','fd','fs'].forEach(i=>$(i).value='');
+  shown=50;refreshOptions();
+  $('upload').classList.add('hidden');$('dash').classList.remove('hidden');
+  render();
+}
+
+function fill(sel,vals,all,lab=x=>x){const cur=sel.value;sel.innerHTML=`<option value="">${all}</option>`+vals.map(v=>`<option value="${esc(v)}">${esc(lab(v))}</option>`).join('');sel.value=vals.includes(cur)?cur:''}
+function refreshOptions(){
+  const p=$('fp').value;
+  fill($('fp'),[...new Set(V.map(r=>r.prova))].sort(),'Todas as corridas',sh);
+  const byP=V.filter(r=>!p||r.prova===p);
+  fill($('fd'),[...new Set(byP.map(r=>r.dl))].sort(),'Todas as distâncias');
+  const d=$('fd').value,byPD=byP.filter(r=>!d||r.dl===d);
+  fill($('fs'),[...new Set(byPD.map(r=>r.s))].sort(),'Todas as categorias',k=>SX[k]);
+}
+['fp','fd','fs'].forEach(id=>$(id).addEventListener('change',()=>{refreshOptions();shown=50;render()}));
+$('clr').onclick=()=>{['fp','fd','fs'].forEach(i=>$(i).value='');refreshOptions();shown=50;render()};
+$('swap').onclick=()=>{$('dash').classList.add('hidden');$('upload').classList.remove('hidden');$('file').value=''};
+$('one').onclick=()=>{const c={};F.forEach(r=>c[r.dl]=(c[r.dl]||0)+1);$('fd').value=Object.entries(c).sort((a,b)=>b[1]-a[1])[0][0];refreshOptions();render()};
+
+function ticks(a,b){const st=[10,15,30,60,120].find(s=>(b-a)*60/s<=7)||120,o=[];for(let t=Math.ceil(a*60/st)*st;t<=b*60;t+=st)o.push(t/60);return o}
+
+function render(){
+  const p=$('fp').value,d=$('fd').value,sx=$('fs').value;
+  F=V.filter(r=>(!p||r.prova===p)&&(!d||r.dl===d)&&(!sx||r.s===sx));
+  $('sum').innerHTML=`Filtros: <b>${p?esc(sh(p)):'todas as corridas'}</b> · <b>${d||'todas as distâncias'}</b> · <b>${sx?SX[sx]:'todas as categorias'}</b> — <b class="mono">${F.length}</b> de ${V.length} registros válidos. Tudo abaixo reflete estes filtros.`;
+  const nProvas=new Set(V.map(r=>r.prova)).size;
+  $('ft').textContent=`Fonte: portal O2 Corre, coleta automatizada com Playwright e tratamento com Pandas. Pace = tempo total em minutos ÷ distância em km. Sexo estimado pelo primeiro nome, não é dado oficial. Nomes anonimizados. ${ALL.length} registros carregados, ${V.length} válidos (${ALL.length-V.length} descartados), ${nProvas} provas. Os números descrevem a amostra coletada, não todos os corredores de Fortaleza.`;
+  const empty=F.length===0;
+  $('emp').classList.toggle('hidden',!empty);$('main').classList.toggle('hidden',empty);
+  $('wd').classList.toggle('hidden',new Set(F.map(r=>r.dl)).size<2);
+  if(empty)return;
+
+  const so=srt(F.map(r=>r.pace)),n=so.length,med=q(so,.5),mean=avg(so);
+  const best=F.reduce((a,b)=>b.min<a.min?b:a),np=new Set(F.map(r=>r.prova)).size;
+  $('kp').innerHTML=[['ti-users',F.length,'Resultados analisados'],['ti-trophy',best.t,'Melhor tempo'],['ti-gauge',fp(med),'Pace mediano (min/km)'],['ti-flag',np,'Provas analisadas']]
+    .map(k=>`<div class="kc"><i class="ti ${k[0]}" aria-hidden="true"></i><div><b>${esc(k[1])}</b><span>${k[2]}</span></div></div>`).join('');
+  $('pm').textContent=fp(med);
+
+  /* histograma */
+  const mn=so[0],mx=so[n-1],iqr=q(so,.75)-q(so,.25),fd=iqr>0?2*iqr/Math.cbrt(n):(mx-mn)/8;
+  const k=Math.max(6,Math.min(12,Math.ceil((mx-mn)/fd)||6)),w=(mx-mn)/k||1;
+  const bins=Array.from({length:k},(_,i)=>({a:mn+i*w,b:mn+(i+1)*w,c:0}));
+  so.forEach(v=>bins[Math.min(k-1,Math.floor((v-mn)/w))].c++);
+  const W=680,H=270,m={l:38,r:10,t:26,b:40},iw=W-m.l-m.r,ih=H-m.t-m.b,cm=Math.max(...bins.map(b=>b.c));
+  const x=v=>m.l+(v-mn)/(mx-mn||1)*iw,y=c=>m.t+ih-c/cm*ih;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Histograma de pace">`;
+  for(let i=0;i<=4;i++){const c=Math.round(cm*i/4);s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(c)}" y2="${y(c)}" stroke="#3a2328" stroke-dasharray="2 3"/><text x="${m.l-6}" y="${y(c)+4}" text-anchor="end">${c}</text>`}
+  bins.forEach(b=>s+=`<rect x="${x(b.a)+1}" y="${y(b.c)}" width="${Math.max(1,x(b.b)-x(b.a)-2)}" height="${m.t+ih-y(b.c)}" rx="2" fill="#B6F500" fill-opacity=".85" data-tip="<b>${fp(b.a)} – ${fp(b.b)} min/km</b><br>${b.c} resultado${b.c!==1?'s':''}"/>`);
+  ticks(mn,mx).forEach(t=>s+=`<text x="${x(t)}" y="${m.t+ih+16}" text-anchor="middle">${fp(t)}</text>`);
+  const rt=x(mean)>=x(med);
+  s+=`<line x1="${x(med)}" x2="${x(med)}" y1="${m.t-6}" y2="${m.t+ih}" stroke="#fff" stroke-width="2.5"/><line x1="${x(mean)}" x2="${x(mean)}" y1="${m.t-6}" y2="${m.t+ih}" stroke="#ff3b47" stroke-width="2" stroke-dasharray="6 4"/>
+  <text class="l" x="${x(med)+(rt?-5:5)}" y="${m.t-10}" text-anchor="${rt?'end':'start'}">Mediana ${fp(med)}</text>
+  <text class="l" x="${x(mean)+(rt?5:-5)}" y="${m.t-10}" text-anchor="${rt?'start':'end'}" style="fill:#ff6b74">Média ${fp(mean)}</text>
+  <text x="${m.l+iw/2}" y="${H-4}" text-anchor="middle">Pace (min/km)</text><text transform="rotate(-90)" x="${-(m.t+ih/2)}" y="12" text-anchor="middle">Quantidade de resultados</text></svg>`;
+  $('hi').innerHTML=s;
+  $('hn').textContent=`${k} faixas (regra de Freedman–Diaconis, limitada entre 6 e 12) para ${n} resultados.`;
+
+  /* categorias */
+  const cc={},cv={};F.forEach(r=>{cc[r.s]=(cc[r.s]||0)+1;(cv[r.s]=cv[r.s]||[]).push(r.pace)});
+  const it=Object.entries(cc).sort((a,b)=>b[1]-a[1]);
+  const C=2*Math.PI*38;let off=0,dn=`<svg viewBox="0 0 120 120" style="max-width:150px;margin:0 auto" role="img" aria-label="Resultados por categoria">`;
+  it.forEach(([a,v])=>{const l=v/F.length*C;dn+=`<circle cx="60" cy="60" r="38" fill="none" stroke="${SC[a]}" stroke-width="16" stroke-dasharray="${l} ${C-l}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)" data-tip="<b>${SX[a]}</b><br>${v} registros · ${(v/F.length*100).toFixed(1)}%"/>`;off+=l});
+  dn+=`<text x="60" y="58" text-anchor="middle" style="fill:#fff;font-size:18px">${F.length}</text><text x="60" y="72" text-anchor="middle">registros</text></svg>`;
+  dn+=it.map(([a,v])=>`<div style="display:flex;justify-content:space-between;font-size:12px;margin-top:6px"><span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${SC[a]};margin-right:6px"></i>${SX[a]}</span><span class="mono">${v} · ${(v/F.length*100).toFixed(1)}%</span></div>`).join('');
+  $('dn').innerHTML=dn;
+  const mx2=Math.max(...it.map(([a])=>q(srt(cv[a]),.5)));let cb='';
+  it.forEach(([a])=>{const md=q(srt(cv[a]),.5);cb+=`<div style="margin:12px 0"><div style="display:flex;justify-content:space-between;font-size:12px"><span>${SX[a]} <span style="color:var(--muted)">n=${cv[a].length}</span></span><span class="mono">${fp(md)}</span></div><div style="background:#2a1418;border-radius:4px;height:14px;margin-top:4px"><i style="display:block;height:14px;width:${md/mx2*100}%;background:${SC[a]};border-radius:4px"></i></div></div>`});
+  const sm=it.filter(([a])=>cv[a].length<30);
+  $('cb').innerHTML=cb+(sm.length?`<div class="wn">Grupos com menos de 30 resultados (${sm.map(([a])=>SX[a]+': '+cv[a].length).join('; ')}). Evite conclusões comparativas fortes.</div>`:'')+`<div class="nt">Menor pace = mais rápido.</div>`;
+
+  /* mediana e P90 por prova */
+  const pg={};F.forEach(r=>(pg[r.prova]=pg[r.prova]||[]).push(r.pace));
+  const pl=Object.entries(pg).map(([nm,v])=>{const a=srt(v);return{l:sh(nm),f:nm,n:a.length,md:q(a,.5),p90:q(a,.9)}}).sort((a,b)=>a.md-b.md);
+  if(pl.length<2){$('pv').innerHTML='<div class="nt" style="text-align:center">Selecione mais de uma prova para comparar eventos.</div>'}
+  else{
+    const pm=Math.max(...pl.map(o=>o.p90)),L=230,rh=36,Wd=700,Hh=pl.length*rh+8,iw2=Wd-L-60;
+    let v=`<svg viewBox="0 0 ${Wd} ${Hh}" role="img" aria-label="Mediana e P90 por prova">`;
+    pl.forEach((o,i)=>{const y0=i*rh+4;
+      v+=`<g data-tip="<b>${esc(o.f)}</b><br>n = ${o.n}<br>Mediana: ${fp(o.md)} min/km<br>P90: ${fp(o.p90)} min/km"><text class="l" x="${L-8}" y="${y0+12}" text-anchor="end">${esc(cut(o.l,36))}</text><text x="${L-8}" y="${y0+26}" text-anchor="end">n = ${o.n}</text>
+      <rect x="${L}" y="${y0}" width="${o.md/pm*iw2}" height="13" rx="2" fill="#B6F500"/><text x="${L+o.md/pm*iw2+5}" y="${y0+11}">${fp(o.md)}</text>
+      <rect x="${L}" y="${y0+16}" width="${o.p90/pm*iw2}" height="13" rx="2" fill="#ff3b47"/><text x="${L+o.p90/pm*iw2+5}" y="${y0+27}">${fp(o.p90)}</text></g>`});
+    $('pv').innerHTML=v+'</svg>';
+  }
+
+  /* percentis e top 5 */
+  const ds=[['P10',.1],['P25',.25],['P50',.5],['P75',.75],['P90',.9]],pmx=q(so,.9);
+  $('pc').innerHTML=ds.map(([a,f])=>{const v=q(so,f);return`<div class="br"><span>${a}</span><span><i style="width:${v/pmx*100}%"></i></span><span class="m">${fp(v)}</span></div>`}).join('');
+  $('tp').innerHTML=[...F].sort((a,b)=>a.min-b.min).slice(0,5).map(r=>`<div class="tp"><span>${esc(r.atleta)}<small>${esc(cut(sh(r.prova),30))}</small></span><span class="m">${esc(r.t)}</span></div>`).join('');
+
+  renderTable();
+  bindTip();
+}
+
+function renderTable(){
+  const rows=[...F].sort((a,b)=>sortDir*(sortKey==='pace'?a.pace-b.pace:a.min-b.min));
+  const ar=k=>sortKey===k?(sortDir>0?' ▲':' ▼'):'';
+  $('tb').innerHTML=`<thead><tr><th>Prova</th><th>Atleta</th><th>Sexo est.</th><th class="m s" data-k="tempo">Tempo${ar('tempo')}</th><th class="m">Peito</th><th class="m">Distância</th><th class="m s" data-k="pace">Pace MM:SS${ar('pace')}</th></tr></thead><tbody>`+
+    rows.slice(0,shown).map(r=>`<tr><td title="${esc(r.prova)}">${esc(cut(sh(r.prova),40))}</td><td>${esc(r.atleta)}</td><td>${SX[r.s]}</td><td class="m">${esc(r.t)}</td><td class="m">${esc(r.b||'—')}</td><td class="m">${esc(r.dl||'—')}</td><td class="m">${fp(r.pace)}</td></tr>`).join('')+'</tbody>';
+  $('tb').querySelectorAll('th.s').forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=1}renderTable()});
+  $('more').classList.toggle('hidden',shown>=rows.length);
+}
+$('more').onclick=()=>{shown+=100;renderTable()};
+
+/* tooltip */
+const tip=$('tip');
+function bindTip(){
+  document.querySelectorAll('[data-tip]').forEach(el=>{
+    el.onmousemove=e=>{
+      tip.innerHTML=el.dataset.tip;
+      tip.style.display='block';
+      tip.style.left=Math.min(e.pageX+14,window.innerWidth-320)+'px';
+      tip.style.top=(e.pageY+14)+'px';
+    };
+    el.onmouseleave=()=>tip.style.display='none';
+  });
+}
+
+/* upload */
+function loadFile(f){
+  if(!f)return;
+  const err=$('err');err.classList.add('hidden');
+  const r=new FileReader();
+  r.onload=()=>{try{prepare(parseCSV(r.result))}catch(e){err.textContent=e.message||'Não foi possível ler o arquivo.';err.classList.remove('hidden')}};
+  r.onerror=()=>{err.textContent='Não foi possível ler o arquivo.';err.classList.remove('hidden')};
+  r.readAsText(f,'utf-8');
+}
+$('file').addEventListener('change',e=>loadFile(e.target.files[0]));
+const dz=$('drop');
+['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));
+dz.addEventListener('drop',e=>loadFile(e.dataTransfer.files[0]));
+
+// Injeção dos dados automáticos vindos do Python
+const INITIAL_DATA = __INITIAL_DATA_PLACEHOLDER__;
+if (Array.isArray(INITIAL_DATA) && INITIAL_DATA.length > 0) {
+  try {
+    prepare(INITIAL_DATA);
+  } catch (err) {
+    console.error('Erro ao inicializar dados automáticos:', err);
+    const errBox = $('err');
+    if (errBox) {
+      errBox.textContent = err.message || 'Erro ao carregar dados pré-processados.';
+      errBox.classList.remove('hidden');
+    }
+  }
+}
+
+const restoreBtn = $('restore');
+if (restoreBtn) {
+  restoreBtn.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (Array.isArray(INITIAL_DATA) && INITIAL_DATA.length > 0) {
+      prepare(INITIAL_DATA);
+    }
+  };
+}
+</script>
+</body>
+</html>
