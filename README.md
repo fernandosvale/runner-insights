@@ -29,7 +29,7 @@ Resultados de provas de corrida amadora costumam ficar dispersos em portais de c
 O **RunnerInsights** implementa uma arquitetura modular moderna de dados:
 1. **Coleta Resiliente:** Web scraper automatizado com Playwright que navega de forma estruturada, respeita o `robots.txt` e lida com instabilidades de rede via retry exponencial (`tenacity`).
 2. **Pipeline de Dados & LGPD:** Higienização, deduplicação em memória, validação rigorosa de *schema* (`pandera`) e anonimização preventiva de atletas.
-3. **Analytics Avançado:** Dashboard em Streamlit com Plotly, trazendo métricas robustas (mediana e percentis P10 a P90) e gráficos de dispersão (*boxplots* por prova e gênero).
+3. **Analytics Avançado:** Dashboard integrado com identidade visual esportiva Neon em alta performance, trazendo métricas robustas (mediana e percentis P10 a P90), histograma de ritmos com linhas estatísticas guia, comparativo de provas (Mediana vs P90) e proporção por gênero.
 
 ---
 
@@ -52,10 +52,10 @@ flowchart TD
     end
 
     subgraph Visualizacao ["3. Camada de Apresentação (BI)"]
-        I --> J[app.py<br/>Streamlit Dashboard]
-        J --> K[Cards KPI: Resultados, Melhor Tempo, P50, Provas]
-        J --> L[Gráficos Plotly: Eixos em MM:SS min/km, Boxplots, Histograma]
-        J --> M[Filtros Interativos por Prova, Distância e Categoria]
+        I --> J[app.py<br/>Streamlit Host]
+        J --> K[src/dashboard_view.py<br/>Injeção de Dados em JSON]
+        K --> L[Template Neon: SVG Charts, Donut, Histograma & P90]
+        L --> M[Filtros Dinâmicos em Tempo Real no Navegador]
     end
 ```
 
@@ -71,10 +71,9 @@ flowchart TD
 | **Pandas** | Processamento de Dados | Vetorização de alto desempenho para conversão de tempos, cálculos de *pace* e transformações tabulares. |
 | **Pandera** | Validação de Schema | Garante a integridade estatística dos dados antes de salvar na base limpa (rejeita *paces* irreais ou dados corrompidos). |
 | **gender-guesser** | Apoio Analítico | Complementa regras fonéticas do português brasileiro para enriquecimento estatístico com rotulação explícita de estimativa. |
-| **Streamlit** | Interface Web | Rápida iteração de interfaces analíticas com reatividade automática e filtros em tempo real. |
-| **Plotly Express** | Visualização Interativa | Gráficos com suporte a *hover*, zoom, *boxplots* interativos e temas modernos. |
+| **Streamlit + SVG/HTML5** | Interface e Dashboard | Entrega ultrarrápida com design esportivo customizado, gráficos SVG e filtros instantâneos no cliente. |
 | **Ruff** | Linting e Padronização | Linter ultrarrápido em Rust garantindo conformidade com PEP 8 e regras de qualidade de código. |
-| **Pytest** | Testes Automatizados | Suíte completa com 54 testes unitários e de integração cobrindo scraper, pipeline e utilitários. |
+| **Pytest** | Testes Automatizados | Suíte completa com 56 testes unitários e de integração cobrindo scraper, pipeline, visualização e utilitários. |
 
 ---
 
@@ -83,7 +82,7 @@ flowchart TD
 ```text
 runner-insights/
 ├── .gitignore                   # Proteção de ambientes, caches e dados brutos
-├── app.py                       # Interface do dashboard analítico (Streamlit)
+├── app.py                       # Ponto de entrada do dashboard (Streamlit)
 ├── pyproject.toml               # Configuração do projeto, Ruff e Pytest
 ├── requirements.txt             # Dependências principais de produção
 ├── requirements-dev.txt         # Dependências de desenvolvimento e testes
@@ -99,11 +98,15 @@ runner-insights/
 ├── src/
 │   ├── __init__.py
 │   ├── config.py                # Configurações centrais, caminhos e variáveis de ambiente
+│   ├── dashboard_view.py        # Serialização e renderização do dashboard Neon
 │   ├── scraper.py               # Scraper resiliente com Playwright e Tenacity
 │   ├── pipeline.py              # Pipeline ETL de limpeza, cálculo e anonimização
+│   ├── templates/               # Templates HTML/CSS/JS da interface Neon
+│   │   └── dashboard.html
 │   ├── utils.py                 # Funções utilitárias (cálculo de pace, mediana e percentis)
 │   └── validation.py            # Validação declarativa de schema com Pandera
 └── tests/
+    ├── test_dashboard_view.py   # Testes unitários do módulo de visualização
     ├── test_pipeline.py         # Testes unitários do pipeline e funções estatísticas
     ├── test_scraper.py          # Testes unitários e mocks do scraper resiliente
     └── test_validation.py       # Testes das regras de validação do schema Pandera
