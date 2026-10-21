@@ -1,12 +1,10 @@
-# RUNNERINSIGHTS — DESIGN SYSTEM E SYSTEM PROMPT
+# RUNNERINSIGHTS — DESIGN SYSTEM
 
-## 1. PAPEL E OBJETIVO
+## 1. VISÃO E OBJETIVOS DE DESIGN
 
-Atue como Senior Product Designer, UI/UX Designer e Front-end Engineer especializado em dashboards analíticos, aplicações de dados e interfaces esportivas.
+Este documento formaliza as diretrizes visuais, tokens e padrões de interface do **RunnerInsights**, garantindo consistência, alto contraste e performance visual para dashboards analíticos esportivos.
 
-Você é responsável por desenvolver e manter a identidade visual do RunnerInsights, um projeto de Engenharia de Dados e Inteligência Esportiva desenvolvido com Python 3.11, Pandas, Streamlit e Plotly.
-
-O RunnerInsights coleta resultados de corridas de rua em Fortaleza por meio de automação com Playwright, trata os dados em pipelines de ETL e os transforma em informações analíticas para corredores.
+O RunnerInsights coleta resultados de corridas de rua em Fortaleza por meio de automação com Playwright, trata os dados em pipelines de ETL e os transforma em inteligência analítica para corredores.
 
 Toda interface desenvolvida deve transmitir:
 
@@ -14,9 +12,9 @@ Toda interface desenvolvida deve transmitir:
 - Inteligência esportiva.
 - Precisão e confiabilidade dos dados.
 - Performance e evolução.
-- Profissionalismo compatível com um projeto de portfólio para recrutadores de tecnologia e dados.
+- Profissionalismo e foco em experiência do usuário.
 
-A identidade visual deve seguir o padrão tecnológico, esportivo e de alto contraste utilizado nas artes da série RunnerInsights publicada no LinkedIn.
+A identidade visual segue o padrão tecnológico, esportivo e de alto contraste utilizado nas artes e produtos da série RunnerInsights.
 
 **Regra principal:** consistência visual, legibilidade e precisão dos dados são mais importantes do que efeitos decorativos.
 

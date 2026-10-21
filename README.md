@@ -1,13 +1,24 @@
-# 🏃‍♂️ RunnerInsights — Análise de Performance de Corridas de Rua
+# 🏃‍♂️ RunnerInsights — Sports Analytics & Data Engineering Pipeline
 
 [![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![Streamlit App](https://img.shields.io/badge/Streamlit-1.59-FF4B4B.svg)](https://streamlit.io/)
 [![Playwright](https://img.shields.io/badge/Playwright-1.61-45ba4b.svg)](https://playwright.dev/)
+[![Tests: Pytest](https://img.shields.io/badge/tests-56%20passed-brightgreen.svg)](tests/)
+[![Compliance](https://img.shields.io/badge/LGPD-Compliant-success.svg)](#-conformidade-ética-e-lgpd)
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
-[![Tests: Pytest](https://img.shields.io/badge/tests-pytest-yellow.svg)](https://docs.pytest.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> **Pipeline analítico ponta a ponta de engenharia de dados e business intelligence esportivo**, coletando resultados de corridas de rua em Fortaleza (CE), tratando dados com conformidade à LGPD e entregando análises estatísticas avançadas em dashboard interativo.
+> **Pipeline analítico ponta a ponta de engenharia de dados e business intelligence esportivo**, coletando resultados de corridas de rua em Fortaleza (CE), tratando dados com conformidade estrita à LGPD e entregando inteligência estatística avançada em dashboard interativo.
+
+---
+
+### 💡 Destaques de Engenharia & Impacto
+- **Contratos de Dados Rígidos:** 100% dos dados validados por schema declarativo com [Pandera](src/validation.py), impedindo corrupção analítica e rejeitando *paces* irreais (*fail-fast*).
+- **Scraping Resiliente & Ético:** Extração assíncrona com [Playwright](src/scraper.py) lidando com SPAs dinâmicas, *exponential backoff* com [Tenacity](src/scraper.py) contra falhas transitórias de rede e conformidade com `robots.txt`.
+- **Privacy by Design (LGPD):** Anonimização determinística de atletas via hash unidirecional `SHA-256(nome + url)` e pseudonimização de nomes, garantindo integridade referencial sem expor dados pessoais.
+- **Sports Analytics Avançado:** Eliminação de distorções de *outliers* através de estatísticas robustas (**Mediana e Percentis P10–P90**) e gráficos de dispersão por gênero e prova.
+- **Design System Documentado:** Interface esportiva Neon customizada com tokens de design e acessibilidade documentados em [docs/design_system.md](docs/design_system.md).
+- **Engenharia de Software:** 56 testes automatizados com [Pytest](tests/) e linting estrito com [Ruff](pyproject.toml).
 
 ---
 
@@ -93,8 +104,9 @@ runner-insights/
 │   │   └── corridas_fortaleza_bruto.csv
 │   └── processed/               # Dados tratados, validados e anonimizados
 │       └── corridas_fortaleza_limpo.csv
-├── docs/                        # Imagens e documentações visuais
-│   └── dashboard_preview.png
+├── docs/                        # Documentações técnicas e visuais
+│   ├── dashboard_preview.png
+│   └── design_system.md         # Tokens visuais, acessibilidade e componentes da UI
 ├── src/
 │   ├── __init__.py
 │   ├── config.py                # Configurações centrais, caminhos e variáveis de ambiente
